@@ -1,0 +1,41 @@
+{
+  "name": "coin-limit-trader",
+  "version": "1.0.0",
+  "description": "Trade crypto currency on an exchange using limit trades until fulfilled",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rguerra712/coin-limit-trader.git"
+  },
+  "keywords": [
+    "bitcoin",
+    "crypto",
+    "gdax",
+    "trade",
+    "cryptocurrency",
+    "exchange",
+    "limit",
+    "fees",
+    "litecoin",
+    "btc",
+    "ltc",
+    "bch",
+    "eth",
+    "ethereum",
+    "bitcoincash"
+  ],
+  "author": "R. Stephen Guerra",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/rguerra712/coin-limit-trader/issues"
+  },
+  "homepage": "https://github.com/rguerra712/coin-limit-trader#readme",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.3",
+    "serverless-offline": "^3.20.3",
+    "serverless-plugin-typescript": "^1.1.5"
+  }
+}
