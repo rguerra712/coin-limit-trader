@@ -1,10 +1,11 @@
 {
   "name": "coin-limit-trader",
   "version": "1.0.0",
-  "description": "Trade crypto currency on an exchange using limit trades until fulfilled",
+  "description": "Trade at the current price on an exchange, and keep trying until successful.",
   "main": "handler.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm install && tsc"
   },
   "repository": {
     "type": "git",
@@ -37,5 +38,12 @@
     "@types/aws-lambda": "^8.10.3",
     "serverless-offline": "^3.20.3",
     "serverless-plugin-typescript": "^1.1.5"
+  },
+  "dependencies": {
+    "@types/chai": "^4.1.3",
+    "@types/mocha": "^5.2.0",
+    "chai": "^4.1.2",
+    "gdax": "^0.8.0",
+    "mocha": "^5.2.0"
   }
 }
