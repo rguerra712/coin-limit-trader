@@ -65,3 +65,4 @@ dev.env
 js/*.map
 js/ts.js
 /**/*.js
+out/
