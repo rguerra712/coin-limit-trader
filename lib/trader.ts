@@ -1,0 +1,5 @@
+const trade = () => {
+    
+};
+
+export { trade };

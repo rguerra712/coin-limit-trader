@@ -1,3 +1,0 @@
-const trade = () => {};
-
-export { trade };
