@@ -1,11 +1,11 @@
-enum CoinType {
+export enum CoinType {
   BTC,
   LTC,
   ETH,
   BCH
 }
 
-class Order {
+export class Order {
   orderType: "buy" | "sell";
   price: number;
   size: number;
@@ -24,5 +24,16 @@ class Order {
     this.price = price;
     this.size = size;
     this.coinId = coinId;
+  }
+}
+
+export class OrderPlacedResult {
+  orderId: string;
+
+  /**
+   * Create an order result as it comes back from a third party API
+   */
+  constructor(orderId: string) {
+    this.orderId = orderId;
   }
 }

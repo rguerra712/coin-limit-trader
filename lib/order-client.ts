@@ -1,4 +1,5 @@
-import { AuthenticatedClient, LimitOrder, OrderResult } from "gdax";
+import { AuthenticatedClient, LimitOrder } from "gdax";
+import { Order, OrderPlacedResult } from "../types/types";
 
 declare var process: {
   env: {
@@ -8,15 +9,6 @@ declare var process: {
     GDAX_URL: string;
   };
 };
-
-const authedClient = new AuthenticatedClient(
-  process.env.GDAX_KEY,
-  process.env.GDAX_SECRET,
-  process.env.GDAX_PASSPHRASE,
-  process.env.GDAX_URL
-);
-
-
 class SimplifiedLimitOrder implements LimitOrder {
   type: "limit";
   price: string;
@@ -37,26 +29,38 @@ class SimplifiedLimitOrder implements LimitOrder {
   }
 }
 
-const placeOrder = (order: Order): Promise<OrderResult> => {
-  console.log(`order placed: ${JSON.stringify(order)}`);
-  let params = new SimplifiedLimitOrder(order);
-  return authedClient.placeOrder(params);
-};
+const authedClient = new AuthenticatedClient(
+  process.env.GDAX_KEY,
+  process.env.GDAX_SECRET,
+  process.env.GDAX_PASSPHRASE,
+  process.env.GDAX_URL
+);
 
-const isOrderActive = (orderId: string): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
-    authedClient
-      .getOrder(orderId)
-      .then(orderInfo => {
-        resolve(orderInfo.settled);
-      })
-      .catch(reason => reject(reason));
-  });
-};
+export class OrderClient {
+  placeOrder = (order: Order): Promise<OrderPlacedResult> => {
+    return new Promise((resolve, reject) => {
+      console.log(`order placed: ${JSON.stringify(order)}`);
+      let params = new SimplifiedLimitOrder(order);
+      return authedClient
+        .placeOrder(params)
+        .then(order => resolve(new OrderPlacedResult(order.id)))
+        .catch(error => reject(error));
+    });
+  };
 
-const cancelOrder = (orderId: string): Promise<string[]> => {
-  console.log(`order canceled: ${orderId}`);
-  return authedClient.cancelOrder(orderId);
-};
+  isOrderActive = (orderId: string): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+      authedClient
+        .getOrder(orderId)
+        .then(orderInfo => {
+          resolve(orderInfo.settled);
+        })
+        .catch(reason => reject(reason));
+    });
+  };
 
-export { placeOrder, isOrderActive, cancelOrder };
+  cancelOrder = (orderId: string): Promise<string[]> => {
+    console.log(`order canceled: ${orderId}`);
+    return authedClient.cancelOrder(orderId);
+  };
+}
