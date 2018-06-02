@@ -1,5 +1,17 @@
-const trade = () => {
-    
-};
+import { OrderPlacedResult, Order } from './../types/types';
+import { OrderClient } from "./order-client";
 
-export { trade };
+export class Trader {
+  //private orderClient: OrderClient;
+
+  /**
+   * Createa a new instance of a trader that places orders and cancels existing ones
+   */
+  constructor(orderClient: OrderClient) {
+    //this.orderClient = orderClient;
+  }
+  
+  trade = (order: Order, idToCancel?: string): Promise<OrderPlacedResult> => {
+    return new Promise<OrderPlacedResult>((resolve, reject) => {resolve(new OrderPlacedResult('123'))});
+  };
+}
