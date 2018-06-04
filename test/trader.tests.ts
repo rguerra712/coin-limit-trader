@@ -6,11 +6,21 @@ import { OrderPlacedResult, Order, CoinType } from "../types/types";
 
 const orderClientResult: OrderPlacedResult = new OrderPlacedResult("432");
 const order = new Order("buy", 123, 12, CoinType.LTC);
-
+class MockOrderClient implements OrderClient {
+    placeOrder(order: Order): Promise<OrderPlacedResult> {
+        throw new Error("Method not implemented.");
+    }
+    isOrderActive(orderId: string): Promise<boolean> {
+        throw new Error("Method not implemented.");
+    }
+    cancelOrder(orderId: string): Promise<string[]> {
+        throw new Error("Method not implemented.");
+    }
+}
 describe("trade() with no cancellations", () => {
   let mockOrderClient: OrderClient;
   beforeEach(() => {
-    mockOrderClient = mock(OrderClient);
+    mockOrderClient = mock(MockOrderClient);
     when(mockOrderClient.placeOrder(anything())).thenResolve(orderClientResult);
   });
 
@@ -52,7 +62,7 @@ describe("trade() with previous order", () => {
     let mockOrderClient: OrderClient;
     let previousOrderId = '54321';
     beforeEach(() => {
-        mockOrderClient = mock(OrderClient);
+        mockOrderClient = mock(MockOrderClient);
         when(mockOrderClient.placeOrder(anything())).thenResolve(orderClientResult);
       });
 

@@ -7,7 +7,7 @@ export enum CoinType {
 
 export class Order {
   orderType: "buy" | "sell";
-  price: number;
+  price?: number;
   size: number;
   coinId: CoinType;
 
