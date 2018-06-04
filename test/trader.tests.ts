@@ -1,29 +1,26 @@
 import { expect } from "chai";
-import { mock, when, verify, anyString } from "ts-mockito";
+import { mock, when, verify, anyString, anything, instance } from "ts-mockito";
 import { OrderClient } from "../lib/order-client";
 import { Trader } from "../lib/trader";
 import { OrderPlacedResult, Order, CoinType } from "../types/types";
 
-let order: Order;
-let mockOrderClient: OrderClient;
-let orderClientResult: OrderPlacedResult;
-let trader: Trader;
-beforeEach(() => {
-  // Setup Trader
-  orderClientResult = new OrderPlacedResult("432");
-  const order = new Order("buy", 123, 123, CoinType.LTC);
-  const orderPlacedResultPromise = new Promise<OrderPlacedResult>(
-    (resolve, reject) => orderClientResult
-  );
-  mockOrderClient = mock(OrderClient);
-  when(mockOrderClient.placeOrder(order)).thenReturn(orderPlacedResultPromise);
-  trader = new Trader(mockOrderClient);
-});
-
 describe("trade() with no cancellations", () => {
+  let mockOrderClient: OrderClient;
+  let orderClientResult: OrderPlacedResult;
+  let trader: Trader;
+  beforeEach(() => {
+    // Setup Trader
+    orderClientResult = new OrderPlacedResult("432");
+    mockOrderClient = mock(OrderClient);
+    when(mockOrderClient.placeOrder(anything())).thenResolve(orderClientResult);
+    const orderClient: OrderClient = instance(mockOrderClient);
+    trader = new Trader(orderClient);
+  });
+
   it("Should call placed order on client with no cancellation call", () => {
-    // Arrange in before each
-    
+    // Arrange
+    const order = new Order("buy", 123, 123, CoinType.LTC);
+
     // Act
     const tradePromise = trader.trade(order);
 
@@ -36,7 +33,8 @@ describe("trade() with no cancellations", () => {
   });
 
   it("Should match placed order id", () => {
-    // Arrange in before each
+    // Arrange
+    const order = new Order("buy", 123, 123, CoinType.LTC);
 
     // Act
     const tradePromise = trader.trade(order);
