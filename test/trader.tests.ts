@@ -4,22 +4,20 @@ import { OrderClient } from "../lib/order-client";
 import { Trader } from "../lib/trader";
 import { OrderPlacedResult, Order, CoinType } from "../types/types";
 
+const orderClientResult: OrderPlacedResult = new OrderPlacedResult("432");
+const order = new Order("buy", 123, 12, CoinType.LTC);
+
 describe("trade() with no cancellations", () => {
   let mockOrderClient: OrderClient;
-  let orderClientResult: OrderPlacedResult;
-  let trader: Trader;
   beforeEach(() => {
-    // Setup Trader
-    orderClientResult = new OrderPlacedResult("432");
     mockOrderClient = mock(OrderClient);
     when(mockOrderClient.placeOrder(anything())).thenResolve(orderClientResult);
-    const orderClient: OrderClient = instance(mockOrderClient);
-    trader = new Trader(orderClient);
   });
 
   it("Should call placed order on client with no cancellation call", () => {
     // Arrange
-    const order = new Order("buy", 123, 123, CoinType.LTC);
+    const orderClient: OrderClient = instance(mockOrderClient);
+    const trader = new Trader(orderClient);
 
     // Act
     const tradePromise = trader.trade(order);
@@ -34,7 +32,8 @@ describe("trade() with no cancellations", () => {
 
   it("Should match placed order id", () => {
     // Arrange
-    const order = new Order("buy", 123, 123, CoinType.LTC);
+    const orderClient: OrderClient = instance(mockOrderClient);
+    const trader = new Trader(orderClient);
 
     // Act
     const tradePromise = trader.trade(order);
@@ -47,4 +46,49 @@ describe("trade() with no cancellations", () => {
       );
     });
   });
+});
+
+describe("trade() with previous order", () => {
+    let mockOrderClient: OrderClient;
+    let previousOrderId = '54321';
+    beforeEach(() => {
+        mockOrderClient = mock(OrderClient);
+        when(mockOrderClient.placeOrder(anything())).thenResolve(orderClientResult);
+      });
+
+  it("Should do nothing if order is no longer active", () => {
+    // Arrange
+    when(mockOrderClient.isOrderActive(previousOrderId)).thenResolve(false);
+    const orderClient: OrderClient = instance(mockOrderClient);
+    const trader = new Trader(orderClient);
+
+    // Act
+    const tradePromise = trader.trade(order, previousOrderId);
+
+    // Assert
+    return tradePromise.then(result => {
+      verify(mockOrderClient.isOrderActive(previousOrderId)).once();
+      verify(mockOrderClient.cancelOrder(anyString())).never();
+      verify(mockOrderClient.placeOrder(order)).never();
+    });
+  });
+
+  it("Should cancel previous order and place new order if order is still longer active", () => {
+    // Arrange
+    when(mockOrderClient.isOrderActive(previousOrderId)).thenResolve(true);
+    when(mockOrderClient.cancelOrder(previousOrderId)).thenResolve([]);
+    const orderClient: OrderClient = instance(mockOrderClient);
+    const trader = new Trader(orderClient);
+
+    // Act
+    const tradePromise = trader.trade(order, previousOrderId);
+
+    // Assert
+    return tradePromise.then(result => {
+      verify(mockOrderClient.isOrderActive(previousOrderId)).once();
+      verify(mockOrderClient.cancelOrder(previousOrderId)).once();
+      verify(mockOrderClient.placeOrder(order)).once();
+    });
+  });
+
 });
