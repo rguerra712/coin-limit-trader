@@ -1,4 +1,8 @@
-import { OrderPlacedResult, Order } from "./../types/types";
+import {
+  Order,
+  OrderCompletionResult,
+  OrderFulfilledResult
+} from "./../types/types";
 import { OrderClient } from "./order-client";
 
 export class Trader {
@@ -11,7 +15,32 @@ export class Trader {
     this.orderClient = orderClient;
   }
 
-  trade = (order: Order, idToCancel?: string): Promise<OrderPlacedResult> => {
+  trade = (
+    order: Order,
+    idToCancel?: string
+  ): Promise<OrderCompletionResult> => {
+    if (idToCancel) {
+      return new Promise((resolve, reject) => {
+        this.orderClient
+          .isOrderActive(idToCancel)
+          .then(isActive => {
+            if (isActive) {
+              this.orderClient
+                .cancelOrder(idToCancel)
+                .then(cancellations => {
+                  this.orderClient
+                    .placeOrder(order)
+                    .then(result => resolve(result))
+                    .catch(error => reject(error));
+                })
+                .catch(error => reject(error));
+            } else {
+              resolve(new OrderFulfilledResult());
+            }
+          })
+          .catch(error => reject(error));
+      });
+    }
     return this.orderClient.placeOrder(order);
   };
 }

@@ -27,7 +27,21 @@ export class Order {
   }
 }
 
-export class OrderPlacedResult {
+export interface OrderCompletionResult {
+  isCompleted(): boolean;
+  orderId?: string;
+}
+
+export class OrderFulfilledResult implements OrderCompletionResult {
+  isCompleted(): boolean {
+    return true;
+  }
+}
+
+export class OrderPlacedResult implements OrderCompletionResult {
+  isCompleted(): boolean {
+    return false;
+  }
   orderId: string;
 
   /**
