@@ -5,7 +5,7 @@ import { Trader } from "../lib/trader";
 import { OrderPlacedResult, Order, CoinType } from "../types/types";
 
 const orderClientResult: OrderPlacedResult = new OrderPlacedResult("432");
-const order = new Order("buy", 123, 12, CoinType.LTC);
+const order = new Order("buy", 123, 12, CoinType.Litecoin);
 class MockOrderClient implements OrderClient {
     placeOrder(order: Order): Promise<OrderPlacedResult> {
         throw new Error("Method not implemented.");

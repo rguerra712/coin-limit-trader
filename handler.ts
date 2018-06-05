@@ -1,4 +1,5 @@
 import { Handler, Context, Callback } from 'aws-lambda';
+import container from './lib/inverify-config';
 
 interface TradeResponse {
   statusCode: number;

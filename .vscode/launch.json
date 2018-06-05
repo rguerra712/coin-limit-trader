@@ -10,7 +10,8 @@
       "name": "Launch Program",
       "program": "${workspaceFolder}/out/handler.js",
       "preLaunchTask": "npm: build",
-      "outFiles": ["${workspaceRoot}/out/**/*.js"]
+      "outFiles": ["${workspaceRoot}/out/**/*.js"],
+      "envFile": "${workspaceFolder}/.env"
     },
     {
       "type": "node",

@@ -46,6 +46,8 @@
   },
   "dependencies": {
     "gdax": "^0.8.0",
+    "inversify": "^4.13.0",
+    "reflect-metadata": "^0.1.12",
     "typings": "^2.1.1"
   }
 }

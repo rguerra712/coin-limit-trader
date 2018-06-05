@@ -1,15 +1,10 @@
 import { AuthenticatedClient, LimitOrder } from "gdax";
-import { Order, OrderPlacedResult } from "../types/types";
+import { Order, OrderPlacedResult, TYPES } from "../types/types";
 import { OrderClient } from "./order-client";
+import "reflect-metadata";
+import { injectable, inject } from "inversify";
 
-declare var process: {
-  env: {
-    GDAX_KEY: string;
-    GDAX_SECRET: string;
-    GDAX_PASSPHRASE: string;
-    GDAX_URL: string;
-  };
-};
+
 class SimplifiedLimitOrder implements LimitOrder {
   type: "limit";
   price: string;
@@ -34,19 +29,23 @@ class SimplifiedLimitOrder implements LimitOrder {
   }
 }
 
-const authedClient = new AuthenticatedClient(
-  process.env.GDAX_KEY,
-  process.env.GDAX_SECRET,
-  process.env.GDAX_PASSPHRASE,
-  process.env.GDAX_URL
-);
-
+@injectable()
 export class GdaxOrderClient implements OrderClient {
-  placeOrder = (order: Order): Promise<OrderPlacedResult> => {
+  
+  private authedClient: AuthenticatedClient;
+
+  /**
+   * Create an instance of an order client use for GDAX
+   */
+  constructor(@inject(TYPES.AuthenticatedClient)authedClient: AuthenticatedClient) {
+    this.authedClient = authedClient;  
+  }
+  
+    placeOrder = (order: Order): Promise<OrderPlacedResult> => {
     return new Promise((resolve, reject) => {
       console.log(`order placed: ${JSON.stringify(order)}`);
       let params = new SimplifiedLimitOrder(order);
-      return authedClient
+      return this.authedClient
         .placeOrder(params)
         .then(order => resolve(new OrderPlacedResult(order.id)))
         .catch(error => reject(error));
@@ -55,7 +54,7 @@ export class GdaxOrderClient implements OrderClient {
 
   isOrderActive = (orderId: string): Promise<boolean> => {
     return new Promise((resolve, reject) => {
-      authedClient
+      this.authedClient
         .getOrder(orderId)
         .then(orderInfo => {
           resolve(orderInfo.settled);
@@ -66,6 +65,6 @@ export class GdaxOrderClient implements OrderClient {
 
   cancelOrder = (orderId: string): Promise<string[]> => {
     console.log(`order canceled: ${orderId}`);
-    return authedClient.cancelOrder(orderId);
+    return this.authedClient.cancelOrder(orderId);
   };
 }
