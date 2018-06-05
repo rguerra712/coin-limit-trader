@@ -1,8 +1,8 @@
 export enum CoinType {
-  BTC,
-  LTC,
-  ETH,
-  BCH
+  Bitcoin = 'BTC',
+  Litecoin = 'LTC',
+  Ethereum = 'ETH',
+  BitcoinCash = 'BCH'
 }
 
 export class Order {
@@ -50,4 +50,9 @@ export class OrderPlacedResult implements OrderCompletionResult {
   constructor(orderId: string) {
     this.orderId = orderId;
   }
+}
+
+export const TYPES = {
+  AuthenticatedClient: Symbol.for('AuthenticatedClient'),
+  GdaxOrderClient: Symbol.for('GdaxOrderClient')
 }
