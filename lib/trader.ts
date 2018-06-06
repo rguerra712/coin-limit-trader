@@ -1,3 +1,4 @@
+import { OrderPlacer } from "./order-placer";
 import {
   Order,
   OrderCompletionResult,
@@ -7,18 +8,17 @@ import { OrderClient } from "./order-client";
 
 export class Trader {
   private orderClient: OrderClient;
-
+  private orderPlacer: OrderPlacer;
+  
   /**
    * Createa a new instance of a trader that places orders and cancels existing ones
    */
-  constructor(orderClient: OrderClient) {
+  constructor(orderClient: OrderClient, orderPlacer: OrderPlacer) {
     this.orderClient = orderClient;
+    this.orderPlacer = orderPlacer;
   }
 
-  trade = (
-    order: Order,
-    idToCancel?: string
-  ): Promise<OrderCompletionResult> => {
+  trade = (order: Order, idToCancel?: string): Promise<OrderCompletionResult> => {
     if (idToCancel) {
       return new Promise((resolve, reject) => {
         this.orderClient
@@ -28,7 +28,7 @@ export class Trader {
               this.orderClient
                 .cancelOrder(idToCancel)
                 .then(cancellations => {
-                  this.orderClient
+                  this.orderPlacer
                     .placeOrder(order)
                     .then(result => resolve(result))
                     .catch(error => reject(error));
@@ -41,6 +41,6 @@ export class Trader {
           .catch(error => reject(error));
       });
     }
-    return this.orderClient.placeOrder(order);
+    return this.orderPlacer.placeOrder(order);
   };
 }
