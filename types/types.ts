@@ -54,5 +54,8 @@ export class OrderPlacedResult implements OrderCompletionResult {
 
 export const TYPES = {
   AuthenticatedClient: Symbol.for('AuthenticatedClient'),
-  GdaxOrderClient: Symbol.for('GdaxOrderClient')
+  PublicClient: Symbol.for('PublicClient'),
+  GdaxOrderClient: Symbol.for('GdaxOrderClient'),
+  GdaxOrderPlacer: Symbol.for('GdaxOrderPlacer'),
+  GdaxPriceFinder: Symbol.for('GdaxPriceFinder')
 }
