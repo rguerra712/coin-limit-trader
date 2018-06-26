@@ -5,7 +5,14 @@
   "main": "handler.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm install && tsc"
+    "build": "npm install && tsc",
+    "check": "gts check",
+    "clean": "gts clean",
+    "compile": "tsc -p .",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run check"
   },
   "repository": {
     "type": "git",
@@ -42,7 +49,9 @@
     "@types/mocha": "^5.2.0",
     "mocha": "^5.2.0",
     "chai": "^4.1.2",
-    "ts-mockito": "^2.3.0"
+    "ts-mockito": "^2.3.0",
+    "gts": "^0.7.1",
+    "typescript": "~2.8.0"
   },
   "dependencies": {
     "gdax": "^0.8.0",

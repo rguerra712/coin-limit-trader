@@ -19,10 +19,17 @@ package:
 
 functions:
   trade:
-    handler: handler.trade
+    handler: src/trade-api.trade
 
     events:
       - http:
           path: trade
           method: post
 
+  trade-scheduler:
+      handler: src/trade-scheduler.trade
+
+      events:
+        - http:
+            path: trade
+            method: post

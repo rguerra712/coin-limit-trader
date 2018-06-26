@@ -1,4 +1,4 @@
-import { Order, OrderPlacedResult } from "../types/types";
+import { Order, OrderPlacedResult } from './types/types';
 /**
  * An interface that incompasses solely the placing of an order
  */
