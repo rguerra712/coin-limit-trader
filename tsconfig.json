@@ -1,23 +1,14 @@
 {
+  "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "lib": ["es6", "dom"],
-    "moduleResolution": "node",
-    "rootDir": "./",
-    "sourceMap": false,
-    "allowJs": true,
-    "noImplicitAny": false,
-    "noUnusedLocals": false,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "noImplicitReturns": true,
-    "preserveConstEnums": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "out/",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "rootDir": ".",
+    "outDir": "build",
+    "experimentalDecorators": true
   },
-  "exclude": ["node_modules", "build", "webpack", "out"]
+  "include": [
+    "src/*.ts",
+    "src/**/*.ts",
+    "test/*.ts",
+    "test/**/*.ts"
+  ]
 }

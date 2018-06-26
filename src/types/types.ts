@@ -6,7 +6,7 @@ export enum CoinType {
 }
 
 export class Order {
-  orderType: "buy" | "sell";
+  orderType: 'buy'|'sell';
   price?: number;
   size: number;
   coinId: CoinType;
@@ -15,11 +15,7 @@ export class Order {
    * Create an instance of an order to act upon later
    */
   constructor(
-    orderType: "buy" | "sell",
-    price: number,
-    size: number,
-    coinId: CoinType
-  ) {
+      orderType: 'buy'|'sell', price: number, size: number, coinId: CoinType) {
     this.orderType = orderType;
     this.price = price;
     this.size = size;
@@ -58,4 +54,4 @@ export const TYPES = {
   GdaxOrderClient: Symbol.for('GdaxOrderClient'),
   GdaxOrderPlacer: Symbol.for('GdaxOrderPlacer'),
   GdaxPriceFinder: Symbol.for('GdaxPriceFinder')
-}
+};
