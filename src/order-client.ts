@@ -1,10 +1,11 @@
-import {OrderPlacer} from './order-placer';
+import { OrderPlacer } from "./order-placer";
+import { OrderDetails } from "./types/types";
 
 /**
  * A client wrapping an API to place/cancel orders based on their status and
  * reschedule periodically if needed
  */
 export interface OrderClient {
-  isOrderActive(orderId: string): Promise<boolean>;
-  cancelOrder(orderId: string): Promise<string[]>;
+    getOrderDetails(orderId: string): Promise<OrderDetails>;
+    cancelOrder(orderId: string): Promise<string[]>;
 }

@@ -1,49 +1,61 @@
-import 'reflect-metadata';
+import "reflect-metadata";
+import { OrderScheduler } from "./aws/order-scheduler";
+import { inject } from "inversify";
+import { injectable } from "inversify";
+import { GdaxOrderPlacer } from "./gdax/gdax-order-placer";
+import { GdaxPriceFinder } from "./gdax/gdax-price-finder";
+import { OrderPlacer } from "./order-placer";
+import { Order, OrderPlacedResult, TYPES } from "./types/types";
 
-import {inject} from 'inversify';
-import {injectable} from 'inversify';
-
-import {GdaxOrderPlacer} from './gdax/gdax-order-placer';
-import {GdaxPriceFinder} from './gdax/gdax-price-finder';
-import {OrderClient} from './order-client';
-import {OrderPlacer} from './order-placer';
-import {Order, OrderPlacedResult, TYPES} from './types/types';
+const sleep = require("thread-sleep");
+const { round } = require("mathjs");
 
 @injectable()
 export class RetryingOrderPlacer implements OrderPlacer {
-  private orderPlacer: OrderPlacer;
-  private priceFinder: GdaxPriceFinder;
+    private orderPlacer: GdaxOrderPlacer;
+    private priceFinder: GdaxPriceFinder;
+    private orderScheduler: OrderScheduler;
 
-  /**
-   * Implements an order placer that retries an order, at the current price if
-   * not provided
-   */
-  constructor(
-      @inject(TYPES.GdaxOrderPlacer) orderPlacer: GdaxOrderPlacer,
-      @inject(TYPES.GdaxPriceFinder) priceFinder: GdaxPriceFinder) {
-    this.orderPlacer = orderPlacer;
-    this.priceFinder = priceFinder;
-  }
-
-  placeOrder(order: Order): Promise<OrderPlacedResult> {
-    if (order.price) {
-      return new Promise((resolve, reject) => {
-        this.priceFinder.getCurrentPrice(order.coinId)
-            .then(price => {
-              order.price = price;
-              this.placeOrderAndRetry(order)
-                  .then(result => resolve(result))
-                  .catch(error => reject(error));
-            })
-            .catch(error => reject(error));
-      });
-    } else {
-      return this.placeOrderAndRetry(order);
+    /**
+     * Implements an order placer that retries an order, at the current price if
+     * not provided
+     */
+    constructor(
+        @inject(TYPES.GdaxOrderPlacer) orderPlacer: GdaxOrderPlacer,
+        @inject(TYPES.GdaxPriceFinder) priceFinder: GdaxPriceFinder,
+        @inject(TYPES.OrderScheduler) orderScheduler: OrderScheduler
+    ) {
+        this.orderPlacer = orderPlacer;
+        this.priceFinder = priceFinder;
+        this.orderScheduler = orderScheduler;
     }
-  }
 
-  private placeOrderAndRetry = (order: Order): Promise<OrderPlacedResult> => {
-    // TODO retry
-    return this.orderPlacer.placeOrder(order);
-  };
+    async placeOrder(order: Order, delay: number): Promise<OrderPlacedResult> {
+        let orderResult;
+        try {
+            orderResult = await this.placeOrderAtPriceIfMissing(order, delay);
+        } catch (error) {
+            console.warn(`Error placing first order: ${JSON.stringify(error)}`);
+            orderResult = await this.placeOrderAtPriceIfMissing(order, delay); // If fails again, let it throw
+        }
+        order.price = 0;
+        sleep(Number(delay) * 1000); // Bad on the lambda, but good if it fails in time
+        this.orderScheduler.scheduleOrder(order, delay, orderResult.orderId);
+        return orderResult;
+    }
+
+    async placeOrderAtPriceIfMissing(
+        order: Order,
+        delay: number
+    ): Promise<OrderPlacedResult> {
+        if (!order.price) {
+            const price = await this.priceFinder.getCurrentPrice(
+                order.coinId,
+                order.orderType
+            );
+            order.price = Number(round(price, 2));
+        }
+        const orderResult = await this.orderPlacer.placeOrder(order);
+        return orderResult;
+    }
 }

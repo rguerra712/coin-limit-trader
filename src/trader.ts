@@ -1,41 +1,70 @@
-import {OrderClient} from './order-client';
-import {OrderPlacer} from './order-placer';
-import {Order, OrderCompletionResult, OrderFulfilledResult} from './types/types';
+import "reflect-metadata";
+import { OrderClient } from "./order-client";
+import { OrderPlacer } from "./order-placer";
+import {
+    Order,
+    OrderCompletionResult,
+    OrderFulfilledResult,
+    TYPES
+} from "./types/types";
+import { inject, injectable } from "inversify";
+import { OrderScheduler } from "./aws/order-scheduler";
+import { GdaxPriceFinder } from "./gdax/gdax-price-finder";
 
+@injectable()
 export class Trader {
-  private orderClient: OrderClient;
-  private orderPlacer: OrderPlacer;
+    private orderClient: OrderClient;
+    private orderPlacer: OrderPlacer;
+    private orderScheduler: OrderScheduler;
+    private priceFinder: GdaxPriceFinder;
 
-  /**
-   * Createa a new instance of a trader that places orders and cancels existing
-   * ones
-   */
-  constructor(orderClient: OrderClient, orderPlacer: OrderPlacer) {
-    this.orderClient = orderClient;
-    this.orderPlacer = orderPlacer;
-  }
+    /**
+     * Createa a new instance of a trader that places orders and cancels existing
+     * ones
+     */
+    constructor(
+        @inject(TYPES.OrderClient) orderClient: OrderClient,
+        @inject(TYPES.OrderPlacer) orderPlacer: OrderPlacer,
+        @inject(TYPES.OrderScheduler) orderScheduler: OrderScheduler,
+        @inject(TYPES.GdaxPriceFinder) priceFinder: GdaxPriceFinder
+    ) {
+        this.orderClient = orderClient;
+        this.orderPlacer = orderPlacer;
+        this.orderScheduler = orderScheduler;
+        this.priceFinder = priceFinder;
+    }
 
-  trade =
-      (order: Order, idToCancel?: string): Promise<OrderCompletionResult> => {
+    trade = async (
+        order: Order,
+        delay: number,
+        idToCancel?: string
+    ): Promise<OrderCompletionResult> => {
         if (idToCancel) {
-          return new Promise((resolve, reject) => {
-            this.orderClient.isOrderActive(idToCancel)
-                .then(isActive => {
-                  if (isActive) {
-                    this.orderClient.cancelOrder(idToCancel)
-                        .then(cancellations => {
-                          this.orderPlacer.placeOrder(order)
-                              .then(result => resolve(result))
-                              .catch(error => reject(error));
-                        })
-                        .catch(error => reject(error));
-                  } else {
-                    resolve(new OrderFulfilledResult());
-                  }
-                })
-                .catch(error => reject(error));
-          });
+            const orderDetails = await this.orderClient.getOrderDetails(
+                idToCancel
+            );
+            const newPrice = await this.priceFinder.getCurrentPrice(
+                order.coinId,
+                order.orderType
+            );
+            order.price = newPrice;
+            if (orderDetails.isOrderActive) {
+                console.log(
+                    `prices are ${orderDetails.price} for old and ${
+                        order.price
+                    } for new`
+                );
+                if (orderDetails.price !== order.price) {
+                    await this.orderClient.cancelOrder(idToCancel);
+                    return await this.orderPlacer.placeOrder(order, delay);
+                } else {
+                    this.orderScheduler.scheduleOrder(order, delay, idToCancel);
+                    return new OrderFulfilledResult();
+                }
+            } else {
+                return new OrderFulfilledResult();
+            }
         }
-        return this.orderPlacer.placeOrder(order);
-      };
+        return this.orderPlacer.placeOrder(order, delay);
+    };
 }
