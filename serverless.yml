@@ -10,6 +10,9 @@ provider:
 plugins:
   - serverless-plugin-typescript
   - serverless-offline
+  - serverless-dynamic-dotenv
+  - serverless-offline-sns
+  - serverless-pseudo-parameters
 
 package:
   exclude:
@@ -19,17 +22,22 @@ package:
 
 functions:
   trade:
-    handler: src/trade-api.trade
-
+    handler: src/handlers/trade-api.trade
+    environment:
+      AWS_ACCOUNT_ID: 123456789012
     events:
       - http:
           path: trade
           method: post
 
   trade-scheduler:
-      handler: src/trade-scheduler.trade
-
+      handler: src/handlers/trade-scheduler.trade
       events:
-        - http:
-            path: trade
-            method: post
+        - sns:
+            topicName: scheduleTrade
+            displayName: Schedule coin trade with limit trades
+
+custom:
+  serverless-offline-sns:
+    port: 4002
+    debug: true
