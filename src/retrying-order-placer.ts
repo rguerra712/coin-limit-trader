@@ -33,10 +33,10 @@ export class RetryingOrderPlacer implements OrderPlacer {
     async placeOrder(order: Order, delay: number): Promise<OrderPlacedResult> {
         let orderResult;
         try {
-            orderResult = await this.placeOrderAtPriceIfMissing(order, delay);
+            orderResult = await this.placeOrderAtPriceIfMissing(order);
         } catch (error) {
             console.warn(`Error placing first order: ${JSON.stringify(error)}`);
-            orderResult = await this.placeOrderAtPriceIfMissing(order, delay); // If fails again, let it throw
+            orderResult = await this.placeOrderAtPriceIfMissing(order); // If fails again, let it throw
         }
         order.price = 0;
         sleep(Number(delay) * 1000); // Bad on the lambda, but good if it fails in time
@@ -44,10 +44,7 @@ export class RetryingOrderPlacer implements OrderPlacer {
         return orderResult;
     }
 
-    async placeOrderAtPriceIfMissing(
-        order: Order,
-        delay: number
-    ): Promise<OrderPlacedResult> {
+    async placeOrderAtPriceIfMissing(order: Order): Promise<OrderPlacedResult> {
         if (!order.price) {
             const price = await this.priceFinder.getCurrentPrice(
                 order.coinId,

@@ -43,11 +43,11 @@ export class Trader {
             const orderDetails = await this.orderClient.getOrderDetails(
                 idToCancel
             );
-            const newPrice = await this.priceFinder.getCurrentPrice(
+            const price = await this.priceFinder.getCurrentPrice(
                 order.coinId,
                 order.orderType
             );
-            order.price = newPrice;
+            order.price = price;
             if (orderDetails.isOrderActive) {
                 console.log(
                     `prices are ${orderDetails.price} for old and ${
