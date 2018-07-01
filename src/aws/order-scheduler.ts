@@ -10,7 +10,7 @@ const sns = new SNS();
 @injectable()
 export class OrderScheduler {
     // tslint:disable-next-line:no-any
-    scheduleOrderFromEvent(event: any, delay: number) {
+    scheduleOrderFromEvent(event: any, delay: number): void {
         const orderExtractor = new EventOrderExtractor();
         const order = orderExtractor.extractOrderFrom(event);
         this.scheduleOrder(order, delay);
