@@ -4,7 +4,7 @@
   "description": "Trade at the current price on an exchange, and keep trying until successful.",
   "main": "handler.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm install && tsc && ./node_modules/jest/bin/jest.js --runInBand",
     "build": "npm install && tsc",
     "check": "gts check",
     "clean": "gts clean",

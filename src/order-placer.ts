@@ -1,7 +1,7 @@
-import { Order, OrderPlacedResult } from "./types/types";
+import {Order, OrderPlacedResult} from './types/types';
 /**
  * An interface that incompasses solely the placing of an order
  */
 export interface OrderPlacer {
-    placeOrder(order: Order, delay: number): Promise<OrderPlacedResult>;
+  placeOrder(order: Order, delay: number): Promise<OrderPlacedResult>;
 }

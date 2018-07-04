@@ -1,70 +1,66 @@
 export enum CoinType {
-    Bitcoin = "BTC",
-    Litecoin = "LTC",
-    Ethereum = "ETH",
-    BitcoinCash = "BCH"
+  Bitcoin = 'BTC',
+  Litecoin = 'LTC',
+  Ethereum = 'ETH',
+  BitcoinCash = 'BCH'
 }
 
 export class Order {
-    orderType: "buy" | "sell";
-    price?: number;
-    size: number;
-    coinId: CoinType;
+  orderType: 'buy'|'sell';
+  price?: number;
+  size: number;
+  coinId: CoinType;
 
-    /**
-     * Create an instance of an order to act upon later
-     */
-    constructor(
-        orderType: "buy" | "sell",
-        price: number,
-        size: number,
-        coinId: CoinType
-    ) {
-        this.orderType = orderType;
-        this.price = price;
-        this.size = size;
-        this.coinId = coinId;
-    }
+  /**
+   * Create an instance of an order to act upon later
+   */
+  constructor(
+      orderType: 'buy'|'sell', price: number, size: number, coinId: CoinType) {
+    this.orderType = orderType;
+    this.price = price;
+    this.size = size;
+    this.coinId = coinId;
+  }
 }
 
 export interface OrderCompletionResult {
-    isCompleted(): boolean;
-    orderId?: string;
+  isCompleted(): boolean;
+  orderId?: string;
 }
 
 export class OrderFulfilledResult implements OrderCompletionResult {
-    isCompleted(): boolean {
-        return true;
-    }
+  isCompleted(): boolean {
+    return true;
+  }
 }
 
 export class OrderPlacedResult implements OrderCompletionResult {
-    isCompleted(): boolean {
-        return false;
-    }
-    orderId: string;
+  isCompleted(): boolean {
+    return false;
+  }
+  orderId: string;
 
-    /**
-     * Create an order result as it comes back from a third party API
-     */
-    constructor(orderId: string) {
-        this.orderId = orderId;
-    }
+  /**
+   * Create an order result as it comes back from a third party API
+   */
+  constructor(orderId: string) {
+    this.orderId = orderId;
+  }
 }
 
 export const TYPES = {
-    AuthenticatedClient: Symbol.for("AuthenticatedClient"),
-    PublicClient: Symbol.for("PublicClient"),
-    GdaxOrderClient: Symbol.for("GdaxOrderClient"),
-    GdaxOrderPlacer: Symbol.for("GdaxOrderPlacer"),
-    OrderClient: Symbol.for("OrderClient"),
-    OrderPlacer: Symbol.for("OrderPlacer"),
-    GdaxPriceFinder: Symbol.for("GdaxPriceFinder"),
-    OrderScheduler: Symbol.for("OrderScheduler"),
-    Trader: Symbol.for("Trader")
+  AuthenticatedClient: Symbol.for('AuthenticatedClient'),
+  PublicClient: Symbol.for('PublicClient'),
+  GdaxOrderClient: Symbol.for('GdaxOrderClient'),
+  GdaxOrderPlacer: Symbol.for('GdaxOrderPlacer'),
+  OrderClient: Symbol.for('OrderClient'),
+  OrderPlacer: Symbol.for('OrderPlacer'),
+  GdaxPriceFinder: Symbol.for('GdaxPriceFinder'),
+  OrderScheduler: Symbol.for('OrderScheduler'),
+  Trader: Symbol.for('Trader')
 };
 
 export interface OrderDetails {
-    isOrderActive: boolean;
-    price: number;
+  isOrderActive: boolean;
+  price: number;
 }
