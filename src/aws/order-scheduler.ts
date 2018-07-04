@@ -29,13 +29,15 @@ export class OrderScheduler {
             }:scheduleTrade`
         };
 
+        console.log(`sns params ${JSON.stringify(params)}`);
         sns.publish(params, (error, data) => {
             if (error) {
-                console.error(
-                    `unable to publish message for trade: ${error} with params: ${JSON.stringify(
-                        params
-                    )}`
+                console.log(
+                    `unable to publish message for trade: ${JSON.stringify(
+                        error
+                    )} with params: ${JSON.stringify(params)}`
                 );
+                return;
             }
             console.log(
                 `successfully published message: ${JSON.stringify(data)}`
