@@ -43,19 +43,24 @@ export class Trader {
             const orderDetails = await this.orderClient.getOrderDetails(
                 idToCancel
             );
-            const price = await this.priceFinder.getCurrentPrice(
-                order.coinId,
-                order.orderType
-            );
-            order.price = price;
             if (orderDetails.isOrderActive) {
+                const price = await this.priceFinder.getCurrentPrice(
+                    order.coinId,
+                    order.orderType
+                );
+                order.price = price;
                 console.log(
                     `prices are ${orderDetails.price} for old and ${
                         order.price
                     } for new`
                 );
                 if (orderDetails.price !== order.price) {
-                    await this.orderClient.cancelOrder(idToCancel);
+                    const canceledOrderIds = await this.orderClient.cancelOrder(
+                        idToCancel
+                    );
+                    canceledOrderIds.forEach(id =>
+                        console.log(`cancelled order id ${id}`)
+                    );
                     return await this.orderPlacer.placeOrder(order, delay);
                 } else {
                     this.orderScheduler.scheduleOrder(order, delay, idToCancel);

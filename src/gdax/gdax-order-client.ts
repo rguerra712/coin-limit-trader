@@ -29,7 +29,6 @@ export class GdaxOrderClient implements OrderClient {
     };
 
     cancelOrder = (orderId: string): Promise<string[]> => {
-        console.log(`order canceled: ${orderId}`);
         return this.authedClient.cancelOrder(orderId);
     };
 }

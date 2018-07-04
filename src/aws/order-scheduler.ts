@@ -1,6 +1,5 @@
 import { Order } from "../types/types";
-import { PublishInput } from "aws-sdk/clients/sns";
-import { SNS } from "aws-sdk";
+import { SNS, Lambda, AWSError } from "aws-sdk";
 import { injectable } from "inversify";
 import { EventOrderExtractor } from "./event-order-extractor";
 import "reflect-metadata";
@@ -22,26 +21,38 @@ export class OrderScheduler {
             null,
             2
         );
-        const params: PublishInput = {
-            Message: message,
-            TopicArn: `arn:aws:sns:us-east-1:${
-                process.env["AWS_ACCOUNT_ID"]
-            }:scheduleTrade`
+        let siteParser: Lambda;
+        const configuration = {
+            region: process.env["COIN_LIMIT_TRADER_REGION"]
         };
-
-        console.log(`sns params ${JSON.stringify(params)}`);
-        sns.publish(params, (error, data) => {
+        siteParser = new Lambda(configuration);
+        // tslint:disable-next-line:no-any
+        const callback = (error: AWSError, data: any) => {
             if (error) {
-                console.log(
-                    `unable to publish message for trade: ${JSON.stringify(
-                        error
-                    )} with params: ${JSON.stringify(params)}`
-                );
-                return;
+                throw error;
             }
-            console.log(
-                `successfully published message: ${JSON.stringify(data)}`
-            );
-        });
+            if (data.Payload) {
+                return data.Payload;
+            } else {
+                throw new Error(
+                    `No payload found from lambda, data was ${JSON.stringify(
+                        data,
+                        null,
+                        2
+                    )}`
+                );
+            }
+        };
+        const event = {
+            body: message
+        };
+        const request = {
+            FunctionName: process.env["COIN_LIMIT_TRADER_FUNCTION_NAME"] || "",
+            Payload: JSON.stringify(event, null, 2)
+        };
+        console.log(
+            `invoking lambda with arguments ${JSON.stringify(request)}`
+        );
+        siteParser.invoke(request, callback);
     }
 }

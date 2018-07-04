@@ -7,8 +7,8 @@ provider:
   iamRoleStatements:
     - Effect: "Allow"
       Action: 
-       - SNS:Publish
-      Resource: arn:aws:sns:us-east-1:${env:AWS_ACCOUNT_ID}:scheduleTrade
+       - lambda:InvokeFunction
+      Resource: arn:aws:lambda:us-east-1:${env:AWS_ACCOUNT_ID}:function:coin-limit-trader-prod-trade
   
 
 plugins:
@@ -20,19 +20,11 @@ plugins:
 functions:
   trade:
     handler: src/handlers/trade-api.trade
-    timeout: 10
+    timeout: 300
     events:
       - http:
           path: trade
           method: post
-
-  trade-scheduler:
-      handler: src/handlers/trade-scheduler.trade
-      timeout: 30
-      events:
-        - sns:
-            topicName: scheduleTrade
-            displayName: Schedule coin trade with limit trades
 
 custom:
   serverless-offline-sns:
