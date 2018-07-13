@@ -1,0 +1,13 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Trade Cryptocurrency via retrying limit trades",
+    "version" : "1.0.0",
+    "title" : "Coin Limit Trader"
+  },
+  "host" : "virtserver.swaggerhub.com",
+  "basePath" : "/Appsolute-Perfection/coin-limit-trader/1.0.0",
+  "schemes" : [ "https" ],
+  "paths" : { },
+  "definitions" : { }
+}
